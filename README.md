@@ -1,2 +1,2 @@
 # functionfaker
-Decorator to spoof function calls for prototyping intensive jobs and APIs
+Cache (memoize) and replay responses for expensive function and API calls.
