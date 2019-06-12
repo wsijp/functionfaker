@@ -1,5 +1,5 @@
 # functionfaker
-Cache (memoize) and replay responses for expensive function and API calls.
+[Decorator to cache (memoize) function calls](https://github.com/wsijp/functionfaker) and replay responses for expensive computations and API requests.
 
 [Pip installable](https://pypi.org/project/functionfaker/) via `pip install functionfaker`  
 
