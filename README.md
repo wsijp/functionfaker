@@ -1,7 +1,7 @@
 # functionfaker
 Cache (memoize) and replay responses for expensive function and API calls.
 
-[Pip installable][https://pypi.org/project/functionfaker/] via `pip install functionfaker`  
+[Pip installable](https://pypi.org/project/functionfaker/) via `pip install functionfaker`  
 
 Functionfaker provides caching for functions and methods, where a function response is recorded once and then replayed from cache from thereon. This allows for unit testing applications with API calls without actaully calling the API. It can also speed up prototyping of computationally expensive code. Functionfaker consists of simple code, and provides a single decorator for your functions and methods, as shown in the following "hello world" example.
 
