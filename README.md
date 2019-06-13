@@ -12,7 +12,7 @@ import os
 Add the `response_player` decorator to an example function called `add`:
 
 ```
-@response_player(default_return = None)
+@response_player()
 def add(x, y):
     return x + y
 ```
