@@ -5,6 +5,12 @@ import os
 from zlib import crc32
 from collections import OrderedDict
 
+"""
+Functionfaker provides a decorator to store and retrieve ("replay") function responses to inputs (arguments). A key is generated from the function inputs, and the function output is stored against that key. The next time the function is called with the same input, the same key is generated from this input, and the previously saved response is retrieved.
+
+This code provides a basic storage mechanism in the Store class, using a simple Pickle file to store the responses, and crc32 to generate the keys. To implement your own storage and/ or key generation, create a Store class that implements an update and get_response method, and hash_args method to implement your own key generation.
+"""
+
 # ------ Storage classes ------------
 # Replace the following classes with your own to implement different storage and hashing methods.
 
@@ -18,6 +24,8 @@ class BaseStore(object):
         Args
             function_args (list): function arguments
         """
+
+#        print(function_args)
 
         return crc32(pickle.dumps(sort_object(function_args)))
 
@@ -97,13 +105,13 @@ def sort_object(obj):
 
     elif isinstance(obj, (list, tuple)):
         return [sort_object(e) for e in obj]
-    elif hasattr(obj, '__dict__'):
-        obj.__dict__ = sort_object(obj.__dict__)
-        return obj
+#    elif hasattr(obj, '__dict__'):
+#        obj.__dict__ = sort_object(obj.__dict__)
+#        return obj
 
     return obj
 
-def record_responses_for_decorator(function_return, function_args, args2ignore = [], responder = responder):
+def record_responses_for_decorator(function_return, function_args, responder = responder):
     """ Create and store mock function responses from real responses and store them by function argument tuples.
 
         To be called from inside decorator
@@ -111,14 +119,13 @@ def record_responses_for_decorator(function_return, function_args, args2ignore =
 
     print('Recording response function "%s"'%function_args[0])
 
-    function_args = ignore_args(function_args, args2ignore)
     store_key = responder.hash_args(function_args)
     responder.update(store_key, function_return)
 
     return function_return
 
 
-def make_fake_fun(args2ignore, default_return = None, responder = responder):
+def make_fake_fun(default_return = None, responder = responder):
     """ Make function that spoofs real function.
 
     Args
@@ -132,7 +139,6 @@ def make_fake_fun(args2ignore, default_return = None, responder = responder):
         """ Function that loads and returns responses by keys
         """
 
-        args = ignore_args(args, args2ignore)
         store_key = responder.hash_args(args)
         return_value, success = responder.get_response(store_key)
         status = 'found' if success else 'not found'
@@ -152,7 +158,7 @@ def response_player(args2ignore = [], default_return = None, responder = respond
     RECORD environment variable can be set to replay or record. If set to replay, the decorator will cause the real function call to be replaced by a pre-recorded response (the "fake" function). If set to record, the real function will be called, and its return value stored ("recorded").
     If not set to either, this decorator function will proceed without any additional action.
 
-    The decorator uses a store object to manage storage and retrieval of function responses, with a default object provided. To implement your own storage and/ or key generation, create a Store object that implements an update and get_response method, and hash_args method to implement your own key generation.
+    The decorator uses a store object to manage storage and retrieval of function responses, with a default object provided. To implement your own storage and/ or key generation, create a Store class that implements an update and get_response method, and hash_args method to implement your own key generation.
 
     Args
         args2ignore: (list of strings) list of function arguments to ignore
@@ -165,16 +171,18 @@ def response_player(args2ignore = [], default_return = None, responder = respond
     """
     def response_decorator(func):
         def func_wrapper(*args, **kwargs):
+            args = ignore_args(args, args2ignore)
+
             # key to recorded function responses contains function name
             args_plus_fun = tuple([func.__name__, ] + list(args) + [kwargs, ] )
             if os.environ.get("RECORD","live") == "replay":
-                fake_fun = make_fake_fun(args2ignore = args2ignore, default_return = default_return, responder = responder)
+                fake_fun = make_fake_fun(default_return = default_return, responder = responder)
                 return fake_fun(*args_plus_fun, **kwargs)
             else:
                 # catch response from real function func
                 result = func(*args, **kwargs)
                 if os.environ.get("RECORD","live") == "record":
-                    record_responses_for_decorator(function_return = result, function_args = args_plus_fun, args2ignore = args2ignore, responder = responder)
+                    record_responses_for_decorator(function_return = result, function_args = args_plus_fun, responder = responder)
                 return result
         return func_wrapper
     return response_decorator

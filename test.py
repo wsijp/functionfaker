@@ -15,70 +15,73 @@ class TestFF(unittest.TestCase):
     """ Collect 3 dois that are known to be in PubMed
     """
 
-    # we need to set self argument to None, and a unittest class argument also to None.
-    @response_player(args2ignore=[0,1])
-    def add(self, x, y):
-        return x + y
+    class TestMethods():
+        # we need to set self argument to None, and a unittest class argument also to None.
+        @response_player(args2ignore=[0])
+        def add(self, x, y):
+            return x + y
 
-    @response_player(args2ignore=[0,1])
-    def test_dict_function(self, D):
-        return list(D.keys())[0]
+        @response_player(args2ignore=[0])
+        def test_dict_function(self, D = None):
+            if D is not None:
+                return list(D.keys())[0]
+
+    test_methods = TestMethods()
 
     def setUp(self):
 
+        os.environ['RECORD'] = ""
         print('Setting up %s'%type(self).__name__)
-
         responder.clear()
 
     def tearDown(self):
+        os.environ['RECORD'] = ""
         print('Tearing down %s'%type(self).__name__)
-
         responder.clear()
 
     def test_add_result_after_recording(self):
-        responder.clear()
 
+        print("*Recording and replaying add*")
         os.environ['RECORD'] = "record"
-        self.add(1,2)
+        self.test_methods.add(1,2)
 
         os.environ['RECORD'] = "replay"
-        result = self.add(1,2)
+        result = self.test_methods.add(1,2)
 
         self.assertEqual(result, 3)
 
 
     def test_key_in_recording(self):
-        responder.clear()
 
+        print("*Recording and checking responses key*")
         os.environ['RECORD'] = "record"
-        self.add(1,2)
+        self.test_methods.add(1,2)
 
         D = responder._load_responses()
-        key = responder.hash_args([None,None,1,2,{}])
+        key = responder.hash_args(['add',None,1,2,{}])
 
         self.assertEqual(key in D, True)
 
     def test_key_value_in_recording(self):
-        responder.clear()
 
+        print("*Recording and checking responses value*")
         os.environ['RECORD'] = "record"
-        self.add(1,2)
+        self.test_methods.add(1,2)
 
         D = responder._load_responses()
-        key = responder.hash_args([None,None,1,2,{}])
+        key = responder.hash_args(['add',None,1,2,{}])
 
         self.assertEqual(D.get(key, 0), 3)
 
 
     def test_ordering_of_dicts_doesnt_matter(self):
-        responder.clear()
-
+        print("*Testing ordering of dicts effect*")
         os.environ['RECORD'] = "record"
-        self.test_dict_function(OrderedDict([(1,2), (4,5)]))
+        self.test_methods.test_dict_function(OrderedDict([(1,2), (4,5)]))
 
         # The order of the dict elements should not matter
         os.environ['RECORD'] = "replay"
-        result = self.test_dict_function( OrderedDict([(4,5), (1,2) ]) )
+        result = self.test_methods.test_dict_function( OrderedDict([(4,5), (1,2) ]) )
 
         self.assertEqual(result, 1)
 
