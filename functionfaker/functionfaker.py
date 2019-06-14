@@ -5,10 +5,11 @@ import os
 from zlib import crc32
 from collections import OrderedDict
 
+# ------ Storage classes ------------
 # Replace the following classes with your own to implement different storage and hashing methods.
 
-class Responder(object):
-    """ Base class providing hashing method.
+class BaseStore(object):
+    """ Base class providing hashing method. Make your own by overriding the hash_args method.
     """
 
     def hash_args(self, function_args ):
@@ -16,14 +17,13 @@ class Responder(object):
 
         Args
             function_args (list): function arguments
-            args2ignore (list of ints): list indexes of functions args to ignore
         """
 
         return crc32(pickle.dumps(sort_object(function_args)))
 
 
-class ResponseFile(Responder):
-    """Response class. Must provide update_responses and get_response
+class Store(BaseStore):
+    """Response class. Must provide update and get_response
     """
 
     def __init__(self, fname = "responses.p"):
@@ -45,7 +45,7 @@ class ResponseFile(Responder):
         with open(self.fname, "wb") as f:
             pickle.dump(responses, f)
 
-    def update_responses(self, store_key, function_return):
+    def update(self, store_key, function_return):
 
         responses = self._load_responses()
         responses[store_key] = function_return
@@ -63,9 +63,9 @@ class ResponseFile(Responder):
         if os.path.exists(self.fname):
             os.remove(self.fname)
 
-responder = ResponseFile()
+responder = Store()
 
-
+# ---- function faker procedural code --------
 
 def ignore_args(function_args, args2ignore, ignore_value = None):
     """ Remove argument values to be ignored.
@@ -113,7 +113,7 @@ def record_responses_for_decorator(function_return, function_args, args2ignore =
 
     function_args = ignore_args(function_args, args2ignore)
     store_key = responder.hash_args(function_args)
-    responder.update_responses(store_key, function_return)
+    responder.update(store_key, function_return)
 
     return function_return
 
@@ -144,7 +144,7 @@ def make_fake_fun(args2ignore, default_return = None, responder = responder):
 
 
 
-# Decorator
+# The main decorator
 def response_player(args2ignore = [], default_return = None, responder = responder):
     """ Function recorder/ player decorator for function to be faked.
 
@@ -152,12 +152,15 @@ def response_player(args2ignore = [], default_return = None, responder = respond
     RECORD environment variable can be set to replay or record. If set to replay, the decorator will cause the real function call to be replaced by a pre-recorded response (the "fake" function). If set to record, the real function will be called, and its return value stored ("recorded").
     If not set to either, this decorator function will proceed without any additional action.
 
+    The decorator uses a store object to manage storage and retrieval of function responses, with a default object provided. To implement your own storage and/ or key generation, create a Store object that implements an update and get_response method, and hash_args method to implement your own key generation.
+
     Args
         args2ignore: (list of strings) list of function arguments to ignore
         default_return: function return value if function response is not found
+        responder: Store object to manage storage and retrieval of function responses (default object provided)
 
     Returns
-        Decorator
+        Decorator to use on any function or method to be recorded
 
     """
     def response_decorator(func):

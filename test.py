@@ -70,7 +70,7 @@ class TestFF(unittest.TestCase):
         self.assertEqual(D.get(key, 0), 3)
 
 
-    def test_ordering_of_dicts_not_matter(self):
+    def test_ordering_of_dicts_doesnt_matter(self):
         responder.clear()
 
         os.environ['RECORD'] = "record"
