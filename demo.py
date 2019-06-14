@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from functionfaker import response_player, responder
+from functionfaker import response_player, store
 import os
 import requests
 import json
@@ -18,7 +18,7 @@ def get_geonames(url, params):
 if __name__ == "__main__":
 
     # remove any previous responses
-    responder.clear()
+    store.clear()
 
     # enter record mode, to record function responses.
     os.environ['RECORD'] = "record"
@@ -44,4 +44,4 @@ if __name__ == "__main__":
     print(response)
 
     # clean up responses
-    responder.clear()
+    store.clear()

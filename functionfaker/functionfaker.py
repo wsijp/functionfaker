@@ -71,7 +71,8 @@ class Store(BaseStore):
         if os.path.exists(self.fname):
             os.remove(self.fname)
 
-responder = Store()
+# default storage to use.
+store = Store()
 
 # ---- function faker procedural code --------
 
@@ -93,7 +94,7 @@ def ignore_args(function_args, args2ignore, ignore_value = None):
 # Functions related to the main decorator.
 
 def sort_object(obj):
-    """ Sort nested dictionary objects to obtain predictable behavior on storage.
+    """ Sort nested dictionary objects to obtain more predictable behavior on storage.
     """
 
     if isinstance(obj, dict):
@@ -111,7 +112,7 @@ def sort_object(obj):
 
     return obj
 
-def record_responses_for_decorator(function_return, function_args, responder = responder):
+def record_responses_for_decorator(function_return, function_args, store = store):
     """ Create and store mock function responses from real responses and store them by function argument tuples.
 
         To be called from inside decorator
@@ -119,14 +120,14 @@ def record_responses_for_decorator(function_return, function_args, responder = r
 
     print('Recording response function "%s"'%function_args[0])
 
-    store_key = responder.hash_args(function_args)
-    responder.update(store_key, function_return)
+    store_key = store.hash_args(function_args)
+    store.update(store_key, function_return)
 
     return function_return
 
 
-def make_fake_fun(default_return = None, responder = responder):
-    """ Make function that spoofs real function.
+def make_fake_fun(default_return = None, store = store):
+    """ Make function that fakes (memoizes) real function.
 
     Args
         args2ignore: (list of strings) list of function arguments to ignore
@@ -139,8 +140,8 @@ def make_fake_fun(default_return = None, responder = responder):
         """ Function that loads and returns responses by keys
         """
 
-        store_key = responder.hash_args(args)
-        return_value, success = responder.get_response(store_key)
+        store_key = store.hash_args(args)
+        return_value, success = store.get_response(store_key)
         status = 'found' if success else 'not found'
         print('Faking function "%s". Response %s'%(args[0], status))
 
@@ -151,7 +152,7 @@ def make_fake_fun(default_return = None, responder = responder):
 
 
 # The main decorator
-def response_player(args2ignore = [], default_return = None, responder = responder):
+def response_player(args2ignore = [], default_return = None, store = store):
     """ Function recorder/ player decorator for function to be faked.
 
     Records or replays depending on RECORD environment variable.
@@ -163,7 +164,7 @@ def response_player(args2ignore = [], default_return = None, responder = respond
     Args
         args2ignore: (list of strings) list of function arguments to ignore
         default_return: function return value if function response is not found
-        responder: Store object to manage storage and retrieval of function responses (default object provided)
+        store: Store object to manage storage and retrieval of function responses (default object provided)
 
     Returns
         Decorator to use on any function or method to be recorded
@@ -176,13 +177,13 @@ def response_player(args2ignore = [], default_return = None, responder = respond
             # key to recorded function responses contains function name
             args_plus_fun = tuple([func.__name__, ] + list(args) + [kwargs, ] )
             if os.environ.get("RECORD","live") == "replay":
-                fake_fun = make_fake_fun(default_return = default_return, responder = responder)
+                fake_fun = make_fake_fun(default_return = default_return, store = store)
                 return fake_fun(*args_plus_fun, **kwargs)
             else:
                 # catch response from real function func
                 result = func(*args, **kwargs)
                 if os.environ.get("RECORD","live") == "record":
-                    record_responses_for_decorator(function_return = result, function_args = args_plus_fun, responder = responder)
+                    record_responses_for_decorator(function_return = result, function_args = args_plus_fun, store = store)
                 return result
         return func_wrapper
     return response_decorator

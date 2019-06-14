@@ -9,7 +9,7 @@ from collections import OrderedDict
 import os
 import copy
 import unittest
-from functionfaker import response_player, responder
+from functionfaker import response_player, store
 
 class TestFF(unittest.TestCase):
     """ Collect 3 dois that are known to be in PubMed
@@ -32,12 +32,12 @@ class TestFF(unittest.TestCase):
 
         os.environ['RECORD'] = ""
         print('Setting up %s'%type(self).__name__)
-        responder.clear()
+        store.clear()
 
     def tearDown(self):
         os.environ['RECORD'] = ""
         print('Tearing down %s'%type(self).__name__)
-        responder.clear()
+        store.clear()
 
     def test_add_result_after_recording(self):
 
@@ -57,8 +57,8 @@ class TestFF(unittest.TestCase):
         os.environ['RECORD'] = "record"
         self.test_methods.add(1,2)
 
-        D = responder._load_responses()
-        key = responder.hash_args(['add',None,1,2,{}])
+        D = store._load_responses()
+        key = store.hash_args(['add',None,1,2,{}])
 
         self.assertEqual(key in D, True)
 
@@ -68,8 +68,8 @@ class TestFF(unittest.TestCase):
         os.environ['RECORD'] = "record"
         self.test_methods.add(1,2)
 
-        D = responder._load_responses()
-        key = responder.hash_args(['add',None,1,2,{}])
+        D = store._load_responses()
+        key = store.hash_args(['add',None,1,2,{}])
 
         self.assertEqual(D.get(key, 0), 3)
 
