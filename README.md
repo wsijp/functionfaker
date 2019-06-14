@@ -59,7 +59,7 @@ Faking function "add". Response found
 The saved result of adding 1 and 2 using function 'add' is 3
 ```
 
-The outputs for these inputs (1,2) are now read from cache.
+The outputs for these inputs (1,2) are now read from cache. Setting the environment variable `RECORD` to and empty string lets the function `add` run normally again without `functionfaker` acting on it (you can leave the decorator on).
 
 Some funtion arguments might be irrelevant or difficult to serialize. To ignore these arguments, provide the `args2ignore` argument as a list of integers to the `response_player` decorator, where the integers represent the index in the argument list.
 
