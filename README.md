@@ -3,7 +3,7 @@ Lightweight [Decorator to cache (memoize) function calls](https://github.com/wsi
 
 [Pip installable](https://pypi.org/project/functionfaker/) via `pip install functionfaker`  
 
-Functionfaker offers lightweight and easy to understand function and method caching, similar to some of the functionality of the [Joblib](https://joblib.readthedocs.io/en/latest/) package. A function response is recorded once and then replayed from cache from thereon. This allows for unit testing applications with API calls without actaully calling the API. It can also speed up prototyping of computationally expensive code. Functionfaker consists of simple code, and provides a single decorator for your functions and methods, as shown in the following "hello world" example.
+Functionfaker offers lightweight and easy to understand function (and method) caching, similar to some of the functionality of the [Joblib](https://joblib.readthedocs.io/en/latest/) package. A function response is recorded once and then replayed from cache from thereon. This allows for unit testing applications with API calls without actaully calling the API. It can also speed up prototyping of computationally expensive code. Functionfaker consists of simple code, and provides a single decorator for your functions and methods, as shown in the following "hello world" example.
 
 ```
 from functionfaker import response_player
@@ -59,4 +59,8 @@ Faking function "add". Response found
 The saved result of adding 1 and 2 using function 'add' is 3
 ```
 
-The results are now read from cache.
+The results for these inputs (1,2) are now read from cache.
+
+Some funtion arguments might be irrelevant or difficult to serialize. To ignore these arguments, provide the `args2ignore` argument as a list of integers to the `response_player` decorator, where the integers represent the index in the argument list.
+
+Default function response storage is in a simple Pickle file `responses.p`. To use your own storage system, provide a class derived from `BaseStore` class with an `update` and `get_response` method. An object of this class is then provided as the `store` argument to the `response_player` decorator.
