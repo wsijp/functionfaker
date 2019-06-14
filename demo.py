@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 
-from functionfaker import response_player
+from functionfaker import response_player, responder
 import os
 import requests
 import json
 
-@response_player(default_return = None)
+@response_player()
 def add(x, y):
     return x + y
 
-@response_player(default_return = None)
+@response_player()
 def get_geonames(url, params):
 
     response = requests.get(url, params = params)
     return json.loads(response.content.decode("utf-8"))
 
 if __name__ == "__main__":
+
+    # remove any previous responses
+    responder.clear()
 
     # enter record mode, to record function responses.
     os.environ['RECORD'] = "record"
@@ -39,3 +42,6 @@ if __name__ == "__main__":
     response = get_geonames(url, parameters)
     print("The saved API response:")
     print(response)
+
+    # clean up responses
+    responder.clear()
