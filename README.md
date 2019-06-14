@@ -1,9 +1,9 @@
 # functionfaker
-[Decorator to cache (memoize) function calls](https://github.com/wsijp/functionfaker) and replay responses for expensive computations and API requests.
+Lightweight [Decorator to cache (memoize) function calls](https://github.com/wsijp/functionfaker) and replay responses for expensive computations and API requests.
 
 [Pip installable](https://pypi.org/project/functionfaker/) via `pip install functionfaker`  
 
-Functionfaker provides caching for functions and methods, where a function response is recorded once and then replayed from cache from thereon. This allows for unit testing applications with API calls without actaully calling the API. It can also speed up prototyping of computationally expensive code. Functionfaker consists of simple code, and provides a single decorator for your functions and methods, as shown in the following "hello world" example.
+Functionfaker offers lightweight and easy to understand function and method caching, similar to some of the functionality of the [Joblib](https://joblib.readthedocs.io/en/latest/) package. A function response is recorded once and then replayed from cache from thereon. This allows for unit testing applications with API calls without actaully calling the API. It can also speed up prototyping of computationally expensive code. Functionfaker consists of simple code, and provides a single decorator for your functions and methods, as shown in the following "hello world" example.
 
 ```
 from functionfaker import response_player
@@ -12,7 +12,7 @@ import os
 Add the `response_player` decorator to an example function called `add`:
 
 ```
-@response_player(default_return = None)
+@response_player()
 def add(x, y):
     return x + y
 ```
