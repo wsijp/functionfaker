@@ -3,7 +3,7 @@ Lightweight [Decorator to cache (memoize) function calls](https://github.com/wsi
 
 [Pip installable](https://pypi.org/project/functionfaker/) via `pip install functionfaker`  
 
-Functionfaker offers lightweight and easy to understand function (and method) caching, similar to some of the functionality of the [Joblib](https://joblib.readthedocs.io/en/latest/) package. A function response is recorded once and then replayed from cache from thereon. This allows for unit testing applications with API calls without actaully calling the API. It can also speed up prototyping of computationally expensive code. Functionfaker consists of simple code, and provides a single decorator for your functions and methods, as shown in the following "hello world" example.
+Functionfaker offers lightweight and easy to understand function (and method) caching, similar to some of the functionality of the [Joblib](https://joblib.readthedocs.io/en/latest/) package. A function response is recorded once and then replayed from cache from thereon. This allows for unit testing applications with API calls without actaully calling the API. It can also speed up prototyping of computationally expensive code. Functionfaker consists of simple code, and provides a single decorator for your functions and methods, as shown in the following simple example.
 
 ```
 from functionfaker import response_player
