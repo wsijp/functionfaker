@@ -17,7 +17,7 @@ def add(x, y):
     return x + y
 ```
 
-Then set RECORD mode by setting the environment variable:
+This will not affect the function `add` until you set an environment variable to `RECORD`:
 
 ```
 # enter record mode, to record function responses.
