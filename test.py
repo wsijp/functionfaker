@@ -12,7 +12,7 @@ import unittest
 from functionfaker.functionfaker import response_player, store
 
 class TestFF(unittest.TestCase):
-    """ Collect 3 dois that are known to be in PubMed
+    """ Test some simple functions.
     """
 
     class TestMethods():
